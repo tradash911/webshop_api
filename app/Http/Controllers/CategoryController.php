@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\CategoryResource;
 use App\Models\Category;
 use Illuminate\Http\Request;
 
@@ -12,7 +13,9 @@ class CategoryController extends Controller
      */
     public function index()
     {
-        //
+        $categories = Category::with('product')->get();
+
+        return CategoryResource::collection($categories);
     }
 
     /**
@@ -20,7 +23,15 @@ class CategoryController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $category = Category::create([
+            ...$request->validate([
+                'name'=>'required|string|max:255|',
+                'description'=>'required|string|max:255'
+
+            ])
+        ]);
+
+        return $category;
     }
 
     /**

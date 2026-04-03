@@ -2,6 +2,8 @@
 
 namespace Database\Seeders;
 
+use App\Models\Category;
+use App\Models\Product;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -15,11 +17,18 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
-
-        User::factory()->create([
+        User::factory(100)->create();
+        /*  User::factory()->create([
             'name' => 'Test User',
             'email' => 'test@example.com',
-        ]);
+            'password'=>'password',
+            'phone'=>'3243242423',
+            'address' =>'deawe a dasdas'
+            ]); */
+            $this->call([
+                CategorySeeder::class,
+                ]);
+                
+                Product::factory(100)->create();
     }
 }

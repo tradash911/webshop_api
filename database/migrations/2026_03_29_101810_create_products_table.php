@@ -18,9 +18,9 @@ return new class extends Migration
             $table->string('name');
             $table->integer('price');
             $table->text('description');
-            $table->tinyInteger('quantity');
-            $table->boolean('is_active');
-            $table->foreignIdFor(Category::class);
+            $table->integer('quantity');
+            $table->boolean('is_active')->default(true);
+            $table->foreignIdFor(Category::class)->constrained()->cascadeOnDelete();
         });
     }
 
