@@ -23,7 +23,13 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        "phone",
+        "address",
+        'remember_token'
     ];
+
+   
+
 
     public function orders(){
         return $this->hasMany(Order::class);

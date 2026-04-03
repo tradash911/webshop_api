@@ -36,7 +36,7 @@ class ProductController extends Controller
     public function store(Request $request)
     {
 
-       Gate::authorize('create', Product::class);   
+      /*  Gate::authorize('create', Product::class);   */ 
 
         $product = Product::create([
             ...$request->validate([
@@ -64,7 +64,24 @@ class ProductController extends Controller
      */
     public function update(Request $request, Product $product)
     {
-        //
+        Gate::authorize('update',$product);   
+
+        $data = $request->validate([
+            "name"=>"sometimes|string",
+            "price"=>"sometimes|integer",
+            "description"=>"sometimes|string",
+            "stock"=>"sometimes|integer",
+            "is_active"=>"sometimes|boolean",
+            "category_id"=>"sometimes|integer"
+
+        ]);
+
+        $product->update($data);
+
+        return response()->json([
+            'message' => "product updated",
+            'product' =>$product
+        ]);
     }
 
     /**
@@ -72,6 +89,13 @@ class ProductController extends Controller
      */
     public function destroy(Product $product)
     {
-        //
+        Gate::authorize('delete',$product);   
+
+
+        $product->delete();
+
+        return response()->json([
+            'message'=> "A termék törlődött"
+        ]);
     }
 }
