@@ -75,6 +75,9 @@ class AuthController extends Controller
     // 4️⃣ Auth token létrehozása
     $token = $user->createToken('auth_token')->plainTextToken;
 
+    // email verification küldés
+    $user->sendEmailVerificationNotification(); 
+
     return response()->json([
         'message' => 'User registered successfully',
         'access_token' => $token,

@@ -29,6 +29,8 @@ public function adminLogin(Request $request) {
 
     $token = $user->createToken('admin-token')->plainTextToken;
 
+   
+
     return response()->json([
         'token' => $token,
     ]);
