@@ -36,7 +36,7 @@ class ProductController extends Controller
     public function store(Request $request)
     {
 
-      /*  Gate::authorize('create', Product::class);   */ 
+        Gate::authorize('create', Product::class);  
 
         $product = Product::create([
             ...$request->validate([

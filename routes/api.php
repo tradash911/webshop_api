@@ -5,6 +5,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\UserController;
 use App\Models\User;
 use Illuminate\Auth\Events\Verified;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
@@ -18,6 +19,11 @@ Route::get('/user', function (Request $request) {
 Route::post('/login',[AuthController::class,'login']);
 Route::post('/register',[AuthController::class,'register']);
 Route::post('/logout',[AuthController::class,"logout"])->middleware('auth:sanctum'); 
+///User
+Route::middleware('auth:sanctum')->get('/admin/users', [UserController::class, 'index']);
+//User Profile
+Route::middleware('auth:sanctum')->get('/profile/{user}', [UserController::class, 'show']);
+
 // 🔹 verify link (amikor rákattint az emailben)
 /* Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
     $request->fulfill();

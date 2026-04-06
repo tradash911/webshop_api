@@ -17,8 +17,13 @@ class AuthController extends Controller
             'password'=>'required'
         ]);
 
+        
+        
         $user=User::where('email',$request->email)->first();
-
+        
+        if(!$user->email_verified_at){
+            
+        }
         if(!$user){
             throw ValidationException::withMessages([
                 'email'=> ['The provided credentials are incorrect.']
