@@ -23,6 +23,8 @@ Route::post('/logout',[AuthController::class,"logout"])->middleware('auth:sanctu
 Route::middleware('auth:sanctum')->get('/admin/users', [UserController::class, 'index']);
 //User Profile
 Route::middleware('auth:sanctum')->get('/profile/{user}', [UserController::class, 'show']);
+Route::middleware('auth:sanctum')->put('/profile/{user}', [UserController::class, 'update']);
+Route::middleware('auth:sanctum')->delete('/profile/{user}', [UserController::class, 'destroy']);
 
 // 🔹 verify link (amikor rákattint az emailben)
 /* Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {

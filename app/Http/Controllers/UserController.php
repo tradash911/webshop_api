@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\UserResource;
 use App\Models\Product;
 use App\Models\User;
 use Illuminate\Support\Facades\Gate;
@@ -16,8 +17,8 @@ class UserController extends Controller
     {
         Gate::authorize('viewAny', User::class);  
 
-        $users = User::all();
-        return $users;
+        $users = User::with('orders.orderItems.product')->paginate(20);
+       return UserResource::collection($users);
     }
 
     /**
@@ -33,27 +34,49 @@ class UserController extends Controller
      */
    public function show(string $id)
 {
-   /*  $user = User::with('orders')->findOrFail($id); */
-        $user = User::with('orders.orderItems')->findOrFail($id);
+   
+        $user = User::with('orders.orderItems.product')->findOrFail($id);
 
-    Gate::authorize('isOwner', $user);
-
-    return $user;
+        Gate::authorize('isOwner', $user);
+    
+        return new UserResource($user);
 }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, User $user)
     {
-            Gate::authorize('isOwner', User::class);
+             Gate::authorize('isOwner', $user);
+ 
+            $data = $request->validate([
+                    "name"=> "sometimes|string",
+                    "email"=> "sometimes|string",
+                    
+                    "phone"=> "sometimes|string",
+                    "address"=> "sometimes|string",
+                    
+            ]);
+
+            $user->update($data);
+
+          return response([
+            'message' => "Adatok sikeresen frissítve",
+            $user
+          ]);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(User $user)
     {
-        //
+         Gate::authorize('isOwner', $user);
+
+        $user->delete();
+
+        return response()->json([
+            'message' => "Fiók sikeresen törölve"
+        ]);
     }
 }
