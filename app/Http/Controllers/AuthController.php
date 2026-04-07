@@ -2,11 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\EmailConfirmationMail;
 use App\Mail\WelcomeMail;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException ;
 
 class AuthController extends Controller
@@ -22,7 +25,9 @@ class AuthController extends Controller
         $user=User::where('email',$request->email)->first();
         
         if(!$user->email_verified_at){
-            
+            throw ValidationException::withMessages([
+                'email'=>['Kérlek először erősítsd meg az email címed a belépéshez!']
+            ]);
         }
         if(!$user){
             throw ValidationException::withMessages([
@@ -90,4 +95,29 @@ class AuthController extends Controller
         'user' => $user,
     ], 201);
 }
+
+    public function requestChangeEmailAddress(Request $request){
+            $request->validate([
+                "new_email" =>'required|email|unique:users,email'
+            ]);
+
+            $user=$request->user();
+            $token=Str::random(64);
+
+            DB::table('email_changes')->insert([
+            'user_id' => $user->id,
+            'new_email' => $request->new_email,
+            'token' => $token,
+            'expires_at' => now()->addMinutes(60),
+            'created_at' => now(),
+            'updated_at' => now(),
+            ]);
+
+            Mail::to($user->email)->send(new EmailConfirmationMail($token));
+
+            return response()->json([
+                "message" =>"Megerősítő email elküldve a jelenlegi email címre"
+            ]);
+    }
+    
 }

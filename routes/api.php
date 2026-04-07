@@ -26,6 +26,7 @@ Route::middleware('auth:sanctum')->get('/admin/users', [UserController::class, '
 Route::middleware('auth:sanctum')->get('/profile/{user}', [UserController::class, 'show']);
 Route::middleware('auth:sanctum')->put('/profile/{user}', [UserController::class, 'update']);
 Route::middleware('auth:sanctum')->delete('/profile/{user}', [UserController::class, 'destroy']);
+Route::middleware('auth:sanctum')->post('/profile/{user}', [AuthController::class, 'requestChangeEmailAddress']);
 //Reset user password
 
 

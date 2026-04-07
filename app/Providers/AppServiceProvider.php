@@ -25,11 +25,14 @@ class AppServiceProvider extends ServiceProvider
     {
         ///PASSWORD RESET LINKJE
         ///PASSWORD RESET LINKJE
-       ResetPassword::createUrlUsing(function ($user, string $token) {
+    /*    ResetPassword::createUrlUsing(function ($user, string $token) {
     return "http://localhost:5173/reset-password?token=$token&email={$user->email}";
-        ///PASSWORD RESET LINKJE
-        ///PASSWORD RESET LINKJE
-        ///PASSWORD RESET LINKJE
+    }); */
+    ResetPassword::createUrlUsing(function ($user, string $token) {
+    return config('app.frontend_url') . "/reset-password?token=$token&email={$user->email}";
 });
+    ///PASSWORD RESET LINKJE
+    ///PASSWORD RESET LINKJE
+    ///PASSWORD RESET LINKJE
     }
 }
