@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\Auth\PasswordResetController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\OrderController;
@@ -25,15 +26,12 @@ Route::middleware('auth:sanctum')->get('/admin/users', [UserController::class, '
 Route::middleware('auth:sanctum')->get('/profile/{user}', [UserController::class, 'show']);
 Route::middleware('auth:sanctum')->put('/profile/{user}', [UserController::class, 'update']);
 Route::middleware('auth:sanctum')->delete('/profile/{user}', [UserController::class, 'destroy']);
+//Reset user password
 
+
+Route::post('/forgot-password', [PasswordResetController::class, 'sendResetLink']);
+Route::post('/reset-password', [PasswordResetController::class, 'resetPassword']);
 // 🔹 verify link (amikor rákattint az emailben)
-/* Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
-    $request->fulfill();
-
-    return response()->json([
-        'message' => 'Email verified successfully'
-    ]);
-})->middleware(['signed'])->name('verification.verify'); */
 
 Route::get('/email/verify/{id}/{hash}', function ($id, $hash) {
     $user = User::findOrFail($id);

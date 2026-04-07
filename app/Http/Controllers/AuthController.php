@@ -75,7 +75,7 @@ class AuthController extends Controller
 
     // 3️⃣ Welcome email küldése
   /*    Mail::to($user->email)->queue(new WelcomeMail($user)); */ 
-  Mail::to($user->email)->send(new WelcomeMail($user));
+  /* Mail::to($user->email)->send(new WelcomeMail($user)); */
 
     // 4️⃣ Auth token létrehozása
     $token = $user->createToken('auth_token')->plainTextToken;
