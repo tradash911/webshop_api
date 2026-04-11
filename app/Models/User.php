@@ -26,7 +26,10 @@ class User extends Authenticatable implements MustVerifyEmail
         'email',
         'password',
         "phone",
-        "address",
+        "city",
+        "zip",
+        "address_line",
+        "newsletter_subscribed",
         'remember_token'
     ];
 
@@ -36,6 +39,11 @@ class User extends Authenticatable implements MustVerifyEmail
     public function orders(){
         return $this->hasMany(Order::class);
     }
+
+    public function emailChanges()
+{
+    return $this->hasMany(EmailChange::class);
+}
 
     /**
      * The attributes that should be hidden for serialization.

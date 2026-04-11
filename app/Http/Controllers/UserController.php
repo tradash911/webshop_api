@@ -52,9 +52,12 @@ class UserController extends Controller
             $data = $request->validate([
                     "name"=> "sometimes|string",
                     "email"=> "sometimes|string",
-                    
+                    "zip" => "sometimes|string",
+                    "city" => "sometimes|string",
+                    "address_line" => "sometimes|string",
                     "phone"=> "sometimes|string",
                     "address"=> "sometimes|string",
+                    "newsletter_subscribed" => "sometimes"
                     
             ]);
 

@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Category;
+use App\Models\ProductImage;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -20,6 +21,8 @@ return new class extends Migration
             $table->text('description');
             $table->integer('quantity');
             $table->boolean('is_active')->default(true);
+            $table->integer('discount_price')->nullable();
+            $table->integer('weight')->nullable();
             $table->foreignIdFor(Category::class)->constrained()->cascadeOnDelete();
         });
     }

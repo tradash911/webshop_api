@@ -24,7 +24,9 @@ class ProductFactory extends Factory
                 "description"=>fake()->word(4,10),
                 "quantity"=>fake()->numberBetween(1,30),
                 'is_active'=>fake()->boolean(90),
-                    "category_id" => Category::inRandomOrder()->first()->id,
+                "weight" =>fake()->numberBetween(10,3000),
+                
+                "category_id" => Category::inRandomOrder()->first()->id,
 
         ];
     }

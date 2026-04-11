@@ -13,9 +13,9 @@ use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/user', function (Request $request) {
+/* Route::get('/user', function (Request $request) {
     return $request->user();
-})->middleware('auth:sanctum');
+})->middleware('auth:sanctum'); */
 
 Route::post('/login',[AuthController::class,'login']);
 Route::post('/register',[AuthController::class,'register']);
@@ -26,7 +26,9 @@ Route::middleware('auth:sanctum')->get('/admin/users', [UserController::class, '
 Route::middleware('auth:sanctum')->get('/profile/{user}', [UserController::class, 'show']);
 Route::middleware('auth:sanctum')->put('/profile/{user}', [UserController::class, 'update']);
 Route::middleware('auth:sanctum')->delete('/profile/{user}', [UserController::class, 'destroy']);
-Route::middleware('auth:sanctum')->post('/profile/{user}', [AuthController::class, 'requestChangeEmailAddress']);
+Route::middleware('auth:sanctum')->post('/profile/change-email', [AuthController::class, 'requestChangeEmailAddress']);
+Route::get('/confirm-change-email', [AuthController::class, 'confirmEmailChange']);
+
 //Reset user password
 
 

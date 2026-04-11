@@ -18,7 +18,12 @@ return new class extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->string('phone');
-            $table->text('address');
+           // $table->text('address');
+            $table->string('city');
+            $table->string('zip');
+            $table->string('address_line');
+
+            $table->boolean('newsletter_subscribed')->default(false);
             $table->boolean('is_admin')->default(false);
             $table->softDeletes();
             $table->rememberToken();

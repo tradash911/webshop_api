@@ -44,6 +44,9 @@ class OrderController extends Controller
             'product_id' => $product->id,
             'quantity' => $item['quantity'],
             'price' => $product->price,
+            'product_name' => $product->name,
+            'discount_price' => $product->discount_price,
+            
             
         ]);
         $total += $product->price * $item['quantity'];

@@ -19,7 +19,10 @@ return new class extends Migration
             $table->timestamps();
             $table->foreignIdFor(Order::class)->constrained()->cascadeOnDelete();
             $table->foreignIdFor(Product::class)->constrained()->cascadeOnDelete();
-            $table->decimal('price',10,2);
+            $table->decimal('price');
+            $table->string('product_name');
+            $table->decimal('discount_price')->nullable();
+            $table->integer('weight')->nullable();
             $table->integer('quantity')->default(1);
         });
     }
