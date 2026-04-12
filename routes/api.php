@@ -13,15 +13,17 @@ use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-/* Route::get('/user', function (Request $request) {
-    return $request->user();
-})->middleware('auth:sanctum'); */
+
 
 Route::post('/login',[AuthController::class,'login']);
 Route::post('/register',[AuthController::class,'register']);
 Route::post('/logout',[AuthController::class,"logout"])->middleware('auth:sanctum'); 
-///User
-Route::middleware('auth:sanctum')->get('/admin/users', [UserController::class, 'index']);
+///Admin
+Route::post('/admin',[AdminController::class,'adminLogin']);
+Route::middleware('auth:sanctum')->get('/admin/users', [UserController::class, 'viewUsers']);
+Route::middleware('auth:sanctum')->get('/admin/findUser', [UserController::class, 'findUser']);
+Route::middleware('auth:sanctum')->get('/admin/viewOrders', [OrderController::class, 'viewOrders']);
+Route::middleware('auth:sanctum')->get('/admin/findOrder', [OrderController::class, 'findOrder']);
 //User Profile
 Route::middleware('auth:sanctum')->get('/profile/{user}', [UserController::class, 'show']);
 Route::middleware('auth:sanctum')->put('/profile/{user}', [UserController::class, 'update']);
@@ -63,16 +65,18 @@ Route::post('/email/verification-notification', function (Request $request) {
         'message' => 'Verification link sent'
     ]);
 })->middleware(['auth:sanctum', 'throttle:6,1']);
-///Admin
-Route::post('/admin',[AdminController::class,'adminLogin']);
+
 ///Products
 
 Route::apiResource('products', ProductController::class)->except(['store,update,destroy']);
-
-Route::middleware('auth:sanctum')->post('/products', [ProductController::class, 'store']);
+Route::middleware('auth:sanctum')->post('/admin/products', [ProductController::class, 'store']);
 Route::middleware('auth:sanctum')->put('/products/{product}', [ProductController::class, 'update']);
 Route::middleware('auth:sanctum')->delete('/products/{product}', [ProductController::class, 'destroy']);
  //Categories
- Route::apiResource('categories', CategoryController::class);
+ Route::middleware('auth:sanctum')->post('/categories', [CategoryController::class, 'store']);
+Route::middleware('auth:sanctum')->delete('/categories/{category}', [CategoryController::class, 'destroy']);
+ Route::get('/categories/viewCategories', [CategoryController::class, 'viewCategories']);
+
+ //Orders
 Route::middleware('auth:sanctum')->post('/orders', [OrderController::class, 'store']);
 Route::middleware('auth:sanctum')->get('/orders', [OrderController::class, 'index']);

@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\CategoryResource;
 use App\Models\Category;
+use App\Models\User;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Http\Request;
 
 class CategoryController extends Controller
@@ -55,6 +57,18 @@ class CategoryController extends Controller
      */
     public function destroy(Category $category)
     {
-        //
+         Gate::authorize('delete',$category);   
+
+
+        $category->delete();
+
+        return response()->json([
+            'message'=> "A kategóra törlődött"
+        ]);
+    }
+
+    public function viewCategories(Category $category) {
+         $categories = Category::all();
+         return $categories;
     }
 }

@@ -2,18 +2,25 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\OrderResource;
 use App\Models\Order;
 use App\Models\Product;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 
 class OrderController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
+    public function viewOrders(Request $request)
     {
-       
+      Gate::authorize('viewAny', User::class);  
+
+      $orders = Order::paginate(10);
+      
+      return OrderResource::collection($orders);
     }
 
     /**
@@ -123,6 +130,22 @@ if ($request->same_as_shipping || !$request->billing_name) {
         //
     }
 
+    public function findOrder(Request $request)
+    {
+        Gate::authorize('viewAny', User::class); 
+        
+        $query = Order::query();
+
+        if( $search=$request->search) {
+
+              $query->where(function ($q) use ($search) {
+             $q->where('name', 'like', "%$search%")
+                ->orWhere('email', 'like', "%$search%")
+                ->orWhere('order_number','like', "%$search%");
+             });
+
+            return OrderResource::collection($query->paginate(10));}
+    }
     /**
      * Update the specified resource in storage.
      */

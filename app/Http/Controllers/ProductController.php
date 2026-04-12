@@ -44,7 +44,9 @@ class ProductController extends Controller
                 'description'=>'required|string|max:255',
                 'price'=>'required',
                 'quantity'=>'required',
-                'category_id'=>'required'
+                'category_id'=>'required',
+                'discount_price' => 'sometimes|integer',
+                "weight" => 'sometimes|integer'
             ])
         ]);
         $product->load('category');

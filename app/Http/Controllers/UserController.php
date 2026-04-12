@@ -13,12 +13,12 @@ class UserController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function viewUsers()
     {
-        Gate::authorize('viewAny', User::class);  
+         Gate::authorize('viewAny', User::class);  
 
         $users = User::with('orders.orderItems.product')->paginate(20);
-       return UserResource::collection($users);
+       return UserResource::collection($users); 
     }
 
     /**
@@ -40,6 +40,8 @@ class UserController extends Controller
         Gate::authorize('isOwner', $user);
     
         return new UserResource($user);
+
+        
 }
 
     /**
@@ -82,4 +84,20 @@ class UserController extends Controller
             'message' => "Fiók sikeresen törölve"
         ]);
     }
+
+     public function findUser(Request $request) {
+        Gate::authorize('viewAny', User::class); 
+        
+        $query = User::query();
+
+        if( $search=$request->search) {
+
+              $query->where(function ($q) use ($search) {
+             $q->where('name', 'like', "%$search%")
+                ->orWhere('email', 'like', "%$search%");
+             });
+
+            return UserResource::collection($query->paginate(10));}
+
+} 
 }
