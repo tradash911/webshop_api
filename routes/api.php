@@ -25,15 +25,13 @@ Route::middleware('auth:sanctum')->get('/admin/findUser', [UserController::class
 Route::middleware('auth:sanctum')->get('/admin/viewOrders', [OrderController::class, 'viewOrders']);
 Route::middleware('auth:sanctum')->get('/admin/findOrder', [OrderController::class, 'findOrder']);
 //User Profile
-Route::middleware('auth:sanctum')->get('/profile/{user}', [UserController::class, 'show']);
-Route::middleware('auth:sanctum')->put('/profile/{user}', [UserController::class, 'update']);
+Route::middleware('auth:sanctum')->get('/profile', [UserController::class, 'show']);
+Route::middleware('auth:sanctum')->put('/profile', [UserController::class, 'update']);
 Route::middleware('auth:sanctum')->delete('/profile/{user}', [UserController::class, 'destroy']);
 Route::middleware('auth:sanctum')->post('/profile/change-email', [AuthController::class, 'requestChangeEmailAddress']);
 Route::get('/confirm-change-email', [AuthController::class, 'confirmEmailChange']);
 
 //Reset user password
-
-
 Route::post('/forgot-password', [PasswordResetController::class, 'sendResetLink']);
 Route::post('/reset-password', [PasswordResetController::class, 'resetPassword']);
 // 🔹 verify link (amikor rákattint az emailben)
@@ -68,15 +66,16 @@ Route::post('/email/verification-notification', function (Request $request) {
 
 ///Products
 
-Route::apiResource('products', ProductController::class)->except(['store,update,destroy']);
+//Route::apiResource('products', ProductController::class)->except(['store,update,destroy']);
 Route::middleware('auth:sanctum')->post('/admin/products', [ProductController::class, 'store']);
-Route::middleware('auth:sanctum')->put('/products/{product}', [ProductController::class, 'update']);
-Route::middleware('auth:sanctum')->delete('/products/{product}', [ProductController::class, 'destroy']);
+Route::middleware('auth:sanctum')->put('/admin/products/{product}', [ProductController::class, 'update']);
+Route::middleware('auth:sanctum')->delete('/admin/products/{product}', [ProductController::class, 'destroy']);
  //Categories
  Route::middleware('auth:sanctum')->post('/categories', [CategoryController::class, 'store']);
-Route::middleware('auth:sanctum')->delete('/categories/{category}', [CategoryController::class, 'destroy']);
+ Route::middleware('auth:sanctum')->put('/categories/{category}', [CategoryController::class, 'update']);
+ Route::middleware('auth:sanctum')->delete('/categories/{category}', [CategoryController::class, 'destroy']);
  Route::get('/categories/viewCategories', [CategoryController::class, 'viewCategories']);
 
  //Orders
-Route::middleware('auth:sanctum')->post('/orders', [OrderController::class, 'store']);
-Route::middleware('auth:sanctum')->get('/orders', [OrderController::class, 'index']);
+Route::middleware('auth:sanctum')->post('/createOrder', [OrderController::class, 'store']);
+//Route::middleware('auth:sanctum')->get('/orders', [OrderController::class, 'viewOrders']);

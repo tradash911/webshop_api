@@ -32,7 +32,7 @@ class UserController extends Controller
     /**
      * Display the specified resource.
      */
-   public function show(string $id)
+/*    public function show(string $id)
 {
    
         $user = User::with('orders.orderItems.product')->findOrFail($id);
@@ -42,24 +42,39 @@ class UserController extends Controller
         return new UserResource($user);
 
         
+} */
+
+         public function show(Request $request)
+{
+   
+
+    $userId = $request->user()->id;
+      $user = User::with('orders.orderItems.product')->findOrFail($userId);
+     
+        Gate::authorize('isOwner', $user);
+    
+        return new UserResource($user);
+ 
+        
 }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, User $user)
+    public function update(Request $request)
     {
-             Gate::authorize('isOwner', $user);
- 
+            $userId = $request->user()->id;
+            $user = User::findOrFail($userId);
+            // Gate::authorize('isOwner', $user);
+
             $data = $request->validate([
                     "name"=> "sometimes|string",
-                    "email"=> "sometimes|string",
                     "zip" => "sometimes|string",
                     "city" => "sometimes|string",
                     "address_line" => "sometimes|string",
                     "phone"=> "sometimes|string",
                     "address"=> "sometimes|string",
-                    "newsletter_subscribed" => "sometimes"
+                    "newsletter_subscribed" => "sometimes|boolean"
                     
             ]);
 
@@ -74,11 +89,11 @@ class UserController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(User $user)
+    public function destroy(Request $request)
     {
-         Gate::authorize('isOwner', $user);
-
-        $user->delete();
+          $userId = $request->user()->id;
+            $user = User::findOrFail($userId);
+            $user->delete();
 
         return response()->json([
             'message' => "Fiók sikeresen törölve"

@@ -49,7 +49,18 @@ class CategoryController extends Controller
      */
     public function update(Request $request, Category $category)
     {
-        //
+         Gate::authorize('update',$category);   
+         $data = $request->validate([
+            "name" => "sometimes|string",
+            "description" => "sometimes|string"
+         ]);
+
+         $category->update($data);
+
+          return response()->json([
+            'message' => "Kategória frissítve",
+            'product' =>$category
+        ]);
     }
 
     /**
@@ -68,7 +79,7 @@ class CategoryController extends Controller
     }
 
     public function viewCategories(Category $category) {
-         $categories = Category::all();
+         $categories = Category::with('product')->get();
          return $categories;
     }
 }

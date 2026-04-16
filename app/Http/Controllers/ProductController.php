@@ -81,7 +81,7 @@ class ProductController extends Controller
         $product->update($data);
 
         return response()->json([
-            'message' => "product updated",
+            'message' => "Termék frissítve",
             'product' =>$product
         ]);
     }
