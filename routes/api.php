@@ -20,17 +20,24 @@ Route::post('/register',[AuthController::class,'register']);
 Route::post('/logout',[AuthController::class,"logout"])->middleware('auth:sanctum'); 
 
 Route::get('/test-mail', function () {
-    $resend = Resend::client(env('RESEND_API_KEY'));
+    try {
+        $resend = Resend::client(config('services.resend.key'));
 
-    $resend->emails->send([
-        'from' => 'onboarding@resend.dev',
-        'to' => ['tradash@gmail.com'],
-        'subject' => 'Hello from Laravel',
-        'html' => '<p>It works!</p>',
-    ]);
+        $response = $resend->emails->send([
+            'from' => 'onboarding@resend.dev',
+            'to' => ['teemail@gmail.com'],
+            'subject' => 'Hello',
+            'html' => '<p>Test</p>',
+        ]);
 
-    return 'ok';
-});
+        return response()->json($response);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'error' => $e->getMessage()
+        ], 500);
+    }
+}); 
 
 Route::get('/clear', function () {
     Artisan::call('config:clear');
