@@ -14,10 +14,23 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 
-
 Route::post('/login',[AuthController::class,'login']);
 Route::post('/register',[AuthController::class,'register']);
 Route::post('/logout',[AuthController::class,"logout"])->middleware('auth:sanctum'); 
+
+Route::get('/test-mail', function () {
+    $resend = Resend::client(env('RESEND_API_KEY'));
+
+    $resend->emails->send([
+        'from' => 'onboarding@resend.dev',
+        'to' => ['tradash@gmail.com'],
+        'subject' => 'Hello from Laravel',
+        'html' => '<p>It works!</p>',
+    ]);
+
+    return 'ok';
+});
+
 ///Admin
 Route::post('/admin',[AdminController::class,'adminLogin']);
 Route::middleware('auth:sanctum')->get('/admin/users', [UserController::class, 'viewUsers']);
