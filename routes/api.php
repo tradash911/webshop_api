@@ -11,6 +11,7 @@ use App\Models\User;
 use Illuminate\Auth\Events\Verified;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Route;
 
 
@@ -29,6 +30,13 @@ Route::get('/test-mail', function () {
     ]);
 
     return 'ok';
+});
+
+Route::get('/clear', function () {
+    Artisan::call('config:clear');
+    Artisan::call('cache:clear');
+
+    return 'cleared';
 });
 
 ///Admin
