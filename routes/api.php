@@ -25,7 +25,7 @@ Route::get('/test-mail', function () {
 
         $response = $resend->emails->send([
             'from' => 'onboarding@resend.dev',
-            'to' => ['teemail@gmail.com'],
+            'to' => ['tradash@gmail.com'],
             'subject' => 'Hello',
             'html' => '<p>Test</p>',
         ]);
