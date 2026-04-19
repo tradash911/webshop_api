@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException ;
@@ -96,7 +97,28 @@ class AuthController extends Controller
     // 4️⃣ Auth token létrehozása
     $token = $user->createToken('auth_token')->plainTextToken;
     // email verification küldés
-    $user->sendEmailVerificationNotification(); 
+    //$user->sendEmailVerificationNotification(); 
+
+
+ $response = Http::withHeaders([
+        'accept' => 'application/json',
+        'content-type' => 'application/json',
+        'api-key' => env('BREVO_API_KEY'),
+    ])->post('https://api.brevo.com/v3/smtp/email', [
+        'sender' => [
+            'name' => 'My App',
+            'email' => 'tradash@gmail.com',
+        ],
+        'to' => [
+            [
+                'email' => $data['email'],
+                'name' => 'User',
+            ]
+        ],
+        'subject' => 'Hello from Brevo API',
+        'htmlContent' => '<h1>Szia!</h1><p>Működik API-val 🚀</p>',
+    ]);
+
 
     return response()->json([
         'message' => 'User registered successfully',
