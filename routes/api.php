@@ -14,30 +14,41 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Route;
 
+use Illuminate\Support\Facades\Http;
 
 Route::post('/login',[AuthController::class,'login']);
 Route::post('/register',[AuthController::class,'register']);
 Route::post('/logout',[AuthController::class,"logout"])->middleware('auth:sanctum'); 
-
 Route::get('/test-mail', function () {
-    try {
-        $resend = Resend::client(config('services.resend.key'));
 
-        $response = $resend->emails->send([
-            'from' => 'onboarding@resend.dev',
-            'to' => ['tradash@gmail.com'],
-            'subject' => 'Hello',
-            'html' => '<p>Test</p>',
-        ]);
+    $response = Http::withHeaders([
+        'accept' => 'application/json',
+        'content-type' => 'application/json',
+        'api-key' => env('BREVO_API_KEY'),
+    ])->post('https://api.brevo.com/v3/smtp/email', [
+        'sender' => [
+            'name' => 'My App',
+            'email' => 'tradash@gmail.com',
+        ],
+        'to' => [
+            [
+                'email' => 'tradash666@gmail.com',
+                'name' => 'User',
+            ]
+        ],
+        'subject' => 'Hello from Brevo API',
+        'htmlContent' => '<h1>Szia!</h1><p>Működik API-val 🚀</p>',
+    ]);
 
-        return response()->json($response);
+    return $response->body();
+});
+Route::get('/brevo-test', function () {
+    return [
+        'key' => env('BREVO_API_KEY'),
+    ];
+});
 
-    } catch (\Exception $e) {
-        return response()->json([
-            'error' => $e->getMessage()
-        ], 500);
-    }
-}); 
+
 
 Route::get('/clear', function () {
     Artisan::call('config:clear');
