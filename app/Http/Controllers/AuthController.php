@@ -6,6 +6,7 @@ use App\Mail\EmailConfirmationMail;
 use App\Mail\WelcomeMail;
 use App\Models\EmailChange;
 use App\Models\User;
+use App\Services\VerificationMailService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
@@ -100,7 +101,7 @@ class AuthController extends Controller
     //$user->sendEmailVerificationNotification(); 
 
 
- $response = Http::withHeaders([
+ /* $response = Http::withHeaders([
         'accept' => 'application/json',
         'content-type' => 'application/json',
         'api-key' => env('BREVO_API_KEY'),
@@ -117,8 +118,9 @@ class AuthController extends Controller
         ],
         'subject' => 'Hello from Brevo API',
         'htmlContent' => '<h1>Szia!</h1><p>Működik API-val 🚀</p>',
-    ]);
+    ]); */
 
+    app(VerificationMailService::class)->send($user);
 
     return response()->json([
         'message' => 'User registered successfully',
