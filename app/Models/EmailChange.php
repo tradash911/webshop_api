@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class EmailChange extends Model
 {
-    protected $fillable = ['user_id','new_email','token'];
+    protected $fillable = ['user_id','new_email','token','expires_at'];
 
     public function user()
 {
