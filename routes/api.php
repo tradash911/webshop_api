@@ -67,45 +67,12 @@ Route::middleware('auth:sanctum')->get('/admin/findOrder', [OrderController::cla
 Route::middleware('auth:sanctum')->get('/profile', [UserController::class, 'show']);
 Route::middleware('auth:sanctum')->put('/profile', [UserController::class, 'update']);
 Route::middleware('auth:sanctum')->delete('/profile/{user}', [UserController::class, 'destroy']);
+//Change email address
 Route::middleware('auth:sanctum')->post('/profile/change-email', [AuthController::class, 'requestChangeEmailAddress']);
-Route::get('/confirm-change-email', [AuthController::class, 'confirmEmailChange']);
-
-//Reset user password
-Route::post('/forgot-password', [PasswordResetController::class, 'sendResetLink']);
-Route::post('/reset-password', [PasswordResetController::class, 'resetPassword']);
-// 🔹 verify link (amikor rákattint az emailben)
-/* 
-Route::get('/email/verify/{id}/{hash}', function ($id, $hash) {
-    $user = User::findOrFail($id);
-
-    // Ellenőrizd a hash-t
-    if (!hash_equals(sha1($user->getEmailForVerification()), $hash)) {
-        return response()->json(['message' => 'Invalid verification link'], 403);
-    }
-
-    if ($user->hasVerifiedEmail()) {
-        return response()->json(['message' => 'Email already verified']);
-    }
-
-    $user->markEmailAsVerified();
-    event(new Verified($user));
-
-    return response()->json(['message' => 'Email verified successfully']);
-})->name('verification.verify');
+Route::get('/email/change/confirm/{token}', [AuthController::class,'confirmEmailChange'])->name('email.change.confirm');
 
 
-// 🔹 újraküldés
-Route::post('/email/verification-notification', function (Request $request) {
-    $request->user()->sendEmailVerificationNotification();
-
-    return response()->json([
-        'message' => 'Verification link sent'
-    ]);
-})->middleware(['auth:sanctum', 'throttle:6,1']); */
-
-
-
-// verify link
+// Registration verify link 
 
 Route::get('/email/verify/{id}/{hash}', function (Request $request, $id, $hash) {
 
@@ -136,7 +103,7 @@ Route::get('/email/verify/{id}/{hash}', function (Request $request, $id, $hash) 
 })->middleware(['signed'])->name('verification.verify');
 
 
-// resend
+// email újra  küldése
 Route::post('/email/resend', function (Request $request) {
     $user = $request->user();
 
@@ -148,6 +115,10 @@ Route::post('/email/resend', function (Request $request) {
 
     return response()->json(['message' => 'Verification email resent']);
 })->middleware('auth:sanctum');
+
+//Reset user password
+Route::post('/forgot-password', [PasswordResetController::class, 'sendResetLink']);
+Route::post('/reset-password', [PasswordResetController::class, 'resetPassword']);
 
 
 ///Products

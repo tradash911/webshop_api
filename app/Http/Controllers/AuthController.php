@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException ;
-
+use App\Services\BrevoMailService;
 class AuthController extends Controller
 {
     public function login(Request $request){
@@ -131,7 +131,9 @@ class AuthController extends Controller
 }
 
     ///Change email address
-    public function requestChangeEmailAddress(Request $request){
+    ///Change email address
+    ///Change email address
+  /*   public function requestChangeEmailAddress(Request $request){
         
           $request->validate([
               "new_email" =>'required|email|unique:users,email'
@@ -141,14 +143,6 @@ class AuthController extends Controller
               
             $token=Str::random(64);
 
-          /*   DB::table('email_changes')->insert([
-            'user_id' => $user->id,
-            'new_email' => $request->new_email,
-            'token' => $token,
-            'expires_at' => now()->addMinutes(60),
-            'created_at' => now(),
-            'updated_at' => now(),
-            ]); */
 
             $user->emailChanges()->create([
             'new_email' => $request->new_email,
@@ -161,9 +155,53 @@ class AuthController extends Controller
             return response()->json([
                 "message" =>"Megerősítő email elküldve a jelenlegi email címre"
             ]);
-    }
+    } */
 
-    public function confirmEmailChange(Request $request)
+
+
+public function requestChangeEmailAddress(Request $request, BrevoMailService $mail)
+{
+    $request->validate([
+        "new_email" => 'required|email|unique:users,email'
+    ]);
+
+    $user = $request->user();
+
+    $token = Str::random(64);
+
+    $record = $user->emailChanges()->create([
+        'new_email' => $request->new_email,
+        'token' => $token,
+        'expires_at' => now()->addMinutes(60),
+    ]);
+
+    // 🔥 LINK
+    $url = url("/api/email/change/confirm/{$token}");
+
+    // 🔥 EMAIL HTML
+    $html = "
+        <h2>Email változtatás</h2>
+        <p>Kattints a megerősítéshez:</p>
+        <a href='{$url}'>Email módosítása</a>
+        <p>1 óráig érvényes</p>
+    ";
+
+    // 🔥 KÜLDÉS (régi emailre!)
+    $mail->send(
+        $user->email,
+        $user->name,
+        'Email cím módosítás megerősítése',
+        $html
+    );
+
+    return response()->json([
+        "message" => "Megerősítő email elküldve a jelenlegi email címre"
+    ]);
+}
+///confirm email change
+///confirm email change
+///confirm email change
+/*     public function confirmEmailChange(Request $request)
 {
     $record = EmailChange::
         where('token', $request->token)
@@ -183,5 +221,30 @@ class AuthController extends Controller
 
     return response()->json(['message' => 'Email updated successfully']);
 }
-    
+     */
+    public function confirmEmailChange($token) {
+    $record = EmailChange::with('user')
+            ->where('token', $token)
+            ->firstOrFail();
+
+        if ($record->expires_at < now()) {
+            return response()->json(['message' => 'Token expired'], 403);
+        }
+
+        $user = $record->user;
+
+        if (!$user) {
+            return response()->json(['message' => 'User not found'], 404);
+        }
+
+        $user->email = $record->new_email;
+        $user->save();
+
+        $record->delete();
+
+        return response()->json([
+            'message' => 'Email cím sikeresen frissítve!'
+        ]);
+
+    }
 }
