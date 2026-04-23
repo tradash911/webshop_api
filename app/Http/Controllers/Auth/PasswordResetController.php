@@ -3,9 +3,13 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
+use App\Services\BrevoMailService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
 class PasswordResetController extends Controller
@@ -13,39 +17,70 @@ class PasswordResetController extends Controller
     // 1️⃣ Email küldése a reset linkhez
     public function sendResetLink(Request $request)
     {
+    
         $request->validate([
-            'email' => 'required|email'
-        ]);
-    dump(config('app.key'));
-        $status = Password::sendResetLink(
-            $request->only('email')
+            'email'=> 'required|email'
+        ]) ;
+        
+        $user = User::where('email',$request->email)->first();
+        $token = Str::random(64);
+
+        DB::table('password_reset_tokens')->updateOrInsert(
+            ['email'=> $user->email],
+            ['token'=>hash('sha256',$token),
+            'created_at' => now()
+            ]
         );
 
-        return $status === Password::RESET_LINK_SENT
-            ? response()->json(['message' => 'Reset link sent to your email'], 200)
-            : response()->json(['message' => 'Email not found'], 404);
+        $url = config('app.frontend_url') . "/reset-password?token=$token&email=" . urlencode($user->email);
+
+            $html = "
+        <h1 >Password reset</h1>
+        <p>Kattints ide:</p>
+        <a href='$url'>Reset password</a>
+    ";
+
+    app(BrevoMailService::class)->send(
+        $user->email,
+        $user->name,
+        'Password reset',
+        $html
+    );
+
+    return response()->json([
+        'message' => 'Helyreállító sikeresen elküldve a megadott email címre.'
+    ]);
     }
 
     // 2️⃣ Jelszó reset a tokennel
     public function resetPassword(Request $request)
     {
-        $request->validate([
-            'token' => 'required|string',
-            'email' => 'required|email',
-            'password' => 'required|string|confirmed|min:8',
-        ]);
+  
+            $request->validate([
+                'token' => 'required|string',
+                'email' => 'required|email',
+                'password' => 'required|string|confirmed|min:8',
+            ]);
 
-        $status = Password::reset(
-            $request->only('email', 'password', 'password_confirmation', 'token'),
-            function ($user, $password) {
-                $user->forceFill([
-                    'password' => Hash::make($password)
-                ])->save();
+             $record = DB::table('password_reset_tokens')
+             ->where('email', $request->email)
+             ->first();
+
+              if (!$record || !hash_equals($record->token, hash('sha256', $request->token))) {
+               return response()->json(['message' => 'Invalid token'], 400);
+             }
+
+             if (now()->diffInMinutes($record->created_at) > 60) {
+             return response()->json(['message' => 'Token expired'], 403);
             }
-        );
 
-        return $status === Password::PASSWORD_RESET
-            ? response()->json(['message' => 'Password reset successful'], 200)
-            : response()->json(['message' => 'Invalid or expired token'], 400);
+            $user = User::where('email', $request->email)->first();
+
+            $user->password = Hash::make($request->password);
+            $user->save();
+
+            DB::table('password_reset_tokens')->where('email', $request->email)->delete();
+
+             return response()->json(['message' => 'Jelszó sikeresen frissítve!']);
     }
 }
