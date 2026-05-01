@@ -70,7 +70,7 @@ Route::middleware('auth:sanctum')->delete('/admin/products/{product}', [ProductC
 //User Profile
 Route::middleware('auth:sanctum')->get('/profile', [UserController::class, 'show']);
 Route::middleware('auth:sanctum')->put('/profile', [UserController::class, 'update']);
-Route::middleware('auth:sanctum')->delete('/profile/{user}', [UserController::class, 'destroy']);
+Route::middleware('auth:sanctum')->delete('/profile', [UserController::class, 'destroy']);
 //Change email address
 Route::middleware('auth:sanctum')->post('/profile/change-email', [AuthController::class, 'requestChangeEmailAddress']);
 Route::get('/email/change/confirm/{token}', [AuthController::class,'confirmEmailChange'])->name('email.change.confirm');

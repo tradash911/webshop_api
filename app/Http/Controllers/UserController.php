@@ -91,8 +91,10 @@ class UserController extends Controller
      */
     public function destroy(Request $request)
     {
-          $userId = $request->user()->id;
+          /* $userId = $request->user()->id;
             $user = User::findOrFail($userId);
+            $user->delete(); */
+            $user= $request->user();
             $user->delete();
 
         return response()->json([
