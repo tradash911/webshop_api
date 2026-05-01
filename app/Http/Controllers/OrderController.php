@@ -7,7 +7,10 @@ use App\Models\Order;
 use App\Models\Product;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
+use Laravel\Sanctum\PersonalAccessToken;
+use Symfony\Component\HttpFoundation\Response;
 
 class OrderController extends Controller
 {
@@ -27,31 +30,40 @@ class OrderController extends Controller
      * Store a newly created resource in storage.
      */
    
-    public function store(Request $request)
-{
+    public function store(Request $request){
+$token = $request->bearerToken();
+
+$user = null;
+
+if ($token) {
+    $accessToken = PersonalAccessToken::findToken($token);
+    $user = $accessToken?->tokenable;
+}
     $data = $request->validate([
+       
         'items' => 'required|array|min:1',
         'items.*.product_id' => 'required|exists:products,id',
         'items.*.quantity' => 'required|integer|min:1',
 
-        // shipping
-    'name' => 'required|string|max:255',
-    'zip' => 'required|string',
-    'city' => 'required|string',
-    'address_line' => 'required|string',
-    'email' => 'required|email',
-    'phone' => 'required|string',
+        'name' => $user ? 'nullable|string|max:255' : 'required|string|max:255',
+        'email' => $user ? 'nullable|email' : 'required|email',
+        'phone' => $user ? 'nullable|string' : 'required|string',
+
+        'zip' => $user ? 'nullable|string' : 'required|string',
+        'city' => $user ? 'nullable|string' : 'required|string',
+        'address_line' => $user ? 'nullable|string' : 'required|string',
+
 
     // billing (optional)
-    'billing_name' => 'nullable|string|max:255',
-    'billing_zip' => 'nullable|string',
-    'billing_city' => 'nullable|string',
-    'billing_address_line' => 'nullable|string',
-    'company_name' => 'nullable|string|max:255|required_with:tax_id',
-    'tax_id' => 'nullable|string|max:50|required_with:company_name',
+        'billing_name' => 'nullable|string|max:255',
+        'billing_zip' => 'nullable|string',
+        'billing_city' => 'nullable|string',
+        'billing_address_line' => 'nullable|string',
+        'company_name' => 'nullable|string|max:255|required_with:tax_id',
+        'tax_id' => 'nullable|string|max:50|required_with:company_name',
 
     
-    'same_as_shipping' => 'nullable|boolean',
+         'same_as_shipping' => 'nullable|boolean',
         
     ],[
         'company_name.required_with' => 'Cégnév kötelező ha van adószám',
@@ -60,17 +72,18 @@ class OrderController extends Controller
 
     $billing = [];
 
-if ($request->same_as_shipping || !$request->billing_name) {
+if ($request->same_as_shipping) {
     $billing = [
-        'billing_name' => $data['name'],
-        'billing_zip' => $data['zip'],
-        'billing_city' => $data['city'],
-        'billing_address_line' => $data['address_line'],
+        'billing_name' => $user?->name ?? $request->name,
+        'billing_zip' => $user?->zip ?? $request->zip,
+        'billing_city' => $user?->city ?? $request->city,
+        'billing_address_line' => $user?->address_line ?? $request->address_line,
         'company_name' => null,
         'tax_id' => null,
     ];
 } else {
-    $billing = [
+  
+      $billing = [
         'billing_name' => $data['billing_name'],
         'billing_zip' => $data['billing_zip'],
         'billing_city' => $data['billing_city'],
@@ -81,26 +94,41 @@ if ($request->same_as_shipping || !$request->billing_name) {
 }
 
 
-    $order = Order::create([
-        'user_id' => $request->user()->id,
-        'total_price' => 0,
-        'status' => 'pending',
-        //shipping
-        'name' => $data['name'],
-        'zip' => $data['zip'],
-        'city' => $data['city'],
-        'address_line' => $data['address_line'],
-        'email' => $data['email'],
-        'phone' => $data['phone'],  
-        //billing
-        ...$billing
-        //'order_number' => rand(100000000,20000000)
-    ]);
+foreach ($data['items'] as $item) {
+        $product = Product::findOrFail($item['product_id']);
 
-    $total = 0;
+    if ($product->quantity < $item['quantity']) {
+        return response()->json([
+            'message' => "Not enough stock"
+        ], 400);
+    }
+}
 
+   return DB::transaction(function () use ($data, $user, $billing) {
+        $total = 0;
+
+ $order = Order::create([
+    'user_id' => $user?->id,
+    'total_price' => 0,
+    'status' => 'pending',
+
+    // shipping
+    'name' => $user?->name ?? $data['name'],
+    'email' => $user?->email ?? $data['email'],
+    'phone' => $user?->phone ?? $data['phone'],
+
+    'zip' => $user?->zip ?? $data['zip'],
+    'city' => $user?->city ?? $data['city'],
+    'address_line' => $user?->address_line ?? $data['address_line'],
+
+    // billing
+    ...$billing
+]);
+    
     foreach ($data['items'] as $item) {
         $product = Product::findOrFail($item['product_id']);
+             
+ 
 
         $order->orderItems()->create([
             'product_id' => $product->id,
@@ -113,13 +141,20 @@ if ($request->same_as_shipping || !$request->billing_name) {
         ]);
         $total += $product->price * $item['quantity'];
         $product->decrement('quantity', $item['quantity']);
+         
+    
+
+        
     }
 
-    $order->update([
+   $order->update([
         'total_price' => $total
     ]);
 
     return $order->load('orderItems.product');
+   });
+
+   
 }
 
     /**

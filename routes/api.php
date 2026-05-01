@@ -63,6 +63,10 @@ Route::middleware('auth:sanctum')->get('/admin/users', [UserController::class, '
 Route::middleware('auth:sanctum')->get('/admin/findUser', [UserController::class, 'findUser']);
 Route::middleware('auth:sanctum')->get('/admin/viewOrders', [OrderController::class, 'viewOrders']);
 Route::middleware('auth:sanctum')->get('/admin/findOrder', [OrderController::class, 'findOrder']);
+
+Route::middleware('auth:sanctum')->post('/admin/products', [ProductController::class, 'store']);
+Route::middleware('auth:sanctum')->put('/admin/products/{product}', [ProductController::class, 'update']);
+Route::middleware('auth:sanctum')->delete('/admin/products/{product}', [ProductController::class, 'destroy']);
 //User Profile
 Route::middleware('auth:sanctum')->get('/profile', [UserController::class, 'show']);
 Route::middleware('auth:sanctum')->put('/profile', [UserController::class, 'update']);
@@ -122,17 +126,16 @@ Route::post('/reset-password', [PasswordResetController::class, 'resetPassword']
 
 
 ///Products
-
+Route::get('/products',[CategoryController::class,'viewCategories']);
 //Route::apiResource('products', ProductController::class)->except(['store,update,destroy']);
-Route::middleware('auth:sanctum')->post('/admin/products', [ProductController::class, 'store']);
-Route::middleware('auth:sanctum')->put('/admin/products/{product}', [ProductController::class, 'update']);
-Route::middleware('auth:sanctum')->delete('/admin/products/{product}', [ProductController::class, 'destroy']);
+
  //Categories
  Route::middleware('auth:sanctum')->post('/categories', [CategoryController::class, 'store']);
  Route::middleware('auth:sanctum')->put('/categories/{category}', [CategoryController::class, 'update']);
  Route::middleware('auth:sanctum')->delete('/categories/{category}', [CategoryController::class, 'destroy']);
- Route::get('/categories/viewCategories', [CategoryController::class, 'viewCategories']);
+ //Route::get('/categories/viewCategories', [CategoryController::class, 'viewCategories']);
 
  //Orders
-Route::middleware('auth:sanctum')->post('/createOrder', [OrderController::class, 'store']);
+//Route::middleware('auth:sanctum')->post('/createOrder', [OrderController::class, 'store'])->middleware('throttle:10,1');
+Route::post('/createOrder',[OrderController::class,'store']);
 //Route::middleware('auth:sanctum')->get('/orders', [OrderController::class, 'viewOrders']);
