@@ -101,25 +101,7 @@ class AuthController extends Controller
     //$user->sendEmailVerificationNotification(); 
 
 
- /* $response = Http::withHeaders([
-        'accept' => 'application/json',
-        'content-type' => 'application/json',
-        'api-key' => env('BREVO_API_KEY'),
-    ])->post('https://api.brevo.com/v3/smtp/email', [
-        'sender' => [
-            'name' => 'My App',
-            'email' => 'tradash@gmail.com',
-        ],
-        'to' => [
-            [
-                'email' => $data['email'],
-                'name' => 'User',
-            ]
-        ],
-        'subject' => 'Hello from Brevo API',
-        'htmlContent' => '<h1>Szia!</h1><p>Működik API-val 🚀</p>',
-    ]); */
-
+ 
     app(VerificationMailService::class)->send($user);
 
     return response()->json([

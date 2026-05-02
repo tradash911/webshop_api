@@ -10,6 +10,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Laravel\Sanctum\PersonalAccessToken;
+use App\Services\SendOrderConfirmMail;
+
 use Symfony\Component\HttpFoundation\Response;
 
 class OrderController extends Controller
@@ -150,7 +152,15 @@ foreach ($data['items'] as $item) {
    $order->update([
         'total_price' => $total
     ]);
+    $items=[];
+    foreach ($data['items'] as $item) {
 
+      $items[] =  Product::findOrFail($item['product_id']);
+    }
+  
+   
+    app(SendOrderConfirmMail::class)->send($user,$order,$items);
+   
     return $order->load('orderItems.product');
    });
 
