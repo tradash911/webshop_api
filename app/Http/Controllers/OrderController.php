@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Data\RecipientData;
 use App\Http\Resources\OrderResource;
 use App\Models\Order;
 use App\Models\Product;
@@ -157,10 +158,29 @@ foreach ($data['items'] as $item) {
 
       $items[] =  Product::findOrFail($item['product_id']);
     }
-  
-   
-    app(SendOrderConfirmMail::class)->send($user,$order,$items);
-   
+
+/*      $recipient = [
+    'name' => $user?->name ?? $data['name'],
+    'email' => $user?->email ?? $data['email'],
+    'phone' => $data['phone'],
+    'zip' => $data['zip'],
+    'city' => $data['city'],
+    'address_line' => $data['address_line'],
+    'billing' => $billing,
+]; */
+
+$recipient = new RecipientData(
+    name: $user?->name ?? $data['name'],
+    email: $user?->email ?? $data['email'],
+    zip: $data['zip'],
+    city: $data['city'],
+    address_line: $data['address_line'],
+    phone:$data['phone'],
+    billing:$billing,
+);
+/*  dump($recipient->name); */
+     app(SendOrderConfirmMail::class)->send($recipient,$order,$items); 
+
     return $order->load('orderItems.product');
    });
 

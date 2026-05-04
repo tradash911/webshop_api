@@ -13,6 +13,13 @@
   
     @endforeach
     <p>Teljes összeg:{{$order->total_price}} forint</p>
+    <p>számlázási adatok:</p>
+    {{$user->billing['billing_name']}}
+    {{$user->billing['billing_zip']}}
+    {{$user->billing['billing_city']}}
+    {{$user->billing['billing_address_line']}}
+    {{$user->billing['company_name']}}
+    {{$user->billing['tax_id']}}
    
 </body>
 </html>
